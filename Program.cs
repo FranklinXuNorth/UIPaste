@@ -54,6 +54,9 @@ class HotkeyHost : Form
         menu.Items.Add("截图\tF1", null, (_, _) => CaptureForm.Start());
         menu.Items.Add("贴图\tF3", null, (_, _) => PinClipboard());
         menu.Items.Add("控件\tAlt+Q", null, (_, _) => widgets.ShowAtCursor());
+        var autostart = new ToolStripMenuItem("开机自启") { Checked = AutoStart, CheckOnClick = true };
+        autostart.CheckedChanged += (_, _) => AutoStart = autostart.Checked;
+        menu.Items.Add(autostart);
         menu.Items.Add("退出", null, (_, _) => Application.Exit());
         tray = new NotifyIcon { Icon = AppIcon, Text = "UIPaste", Visible = true, ContextMenuStrip = menu };
         tray.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) CaptureForm.Start(); };
@@ -74,6 +77,23 @@ class HotkeyHost : Form
     public static void Log(string msg)
     {
         try { File.AppendAllText(LogPath, $"{DateTime.Now:MM-dd HH:mm:ss} {msg}{Environment.NewLine}"); } catch { }
+    }
+
+    // Per-user Run key: no admin needed, points at whichever exe is running now.
+    const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    static bool AutoStart
+    {
+        get
+        {
+            using var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RunKey);
+            return k?.GetValue("UIPaste") is string v && v.Contains(Environment.ProcessPath!, StringComparison.OrdinalIgnoreCase);
+        }
+        set
+        {
+            using var k = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(RunKey);
+            if (value) k.SetValue("UIPaste", $"\"{Environment.ProcessPath}\"");
+            else k.DeleteValue("UIPaste", false);
+        }
     }
 
     void PinClipboard()
