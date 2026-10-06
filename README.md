@@ -19,7 +19,7 @@
 
 ~90 widgets in four groups: **Material 3**, **iOS-style** (iOS 26 look), **Generic** (phone frame, status bar, placeholders), and **Annotate** (Add / Remove / Click → tags, markers, sticky notes for telling an AI or a teammate what to change). The UI widgets aren't drawings. They're real open-source components rendered in WebView2 and captured as transparent PNGs at 3× resolution, so text stays sharp at any size.
 
-<p align="center"><img src="docs/widgets.png" alt="Some of the palette: Material 3 buttons, fields, dialog, snackbar, tabs; iOS buttons, segmented control, toggle, settings list, alert, tab bar" width="760"></p>
+<p align="center"><img src="docs/widgets.png" alt="Some of the palette: Material 3 button, field, segmented, card, nav bar, dialog, search bar, menu; iOS button, segmented, settings list, messages, notification, action sheet; annotation tags, sticky note, callout, avatars" width="760"></p>
 
 <br>
 

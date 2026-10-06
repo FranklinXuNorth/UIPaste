@@ -19,7 +19,7 @@
 
 大约 90 个控件，分四组：**Material 3**、**iOS-style**（iOS 26 外观）、**Generic**（手机外框、状态栏、占位图）、**Annotate**（「+ 添加 / − 删除 / 点击 →」标签、序号、便利贴，用来告诉 AI 或队友要改什么）。这些 UI 控件不是画出来的，而是真正的开源组件，在 WebView2 里渲染后按 3 倍分辨率截成透明 PNG，所以放多大字都清晰。
 
-<p align="center"><img src="docs/widgets.png" alt="面板里的一部分：Material 3 的按钮、输入框、对话框、提示条、标签页；iOS 的按钮、分段控件、开关、设置列表、弹窗、标签栏" width="760"></p>
+<p align="center"><img src="docs/widgets.png" alt="面板里的一部分：Material 3 的按钮、输入框、分段按钮、卡片、底部导航、对话框、搜索栏、菜单；iOS 的按钮、分段控件、设置列表、消息气泡、通知、操作表；标注标签、便利贴、说明气泡、头像组" width="760"></p>
 
 <br>
 
