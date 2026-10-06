@@ -41,7 +41,7 @@ dotnet publish -c Release -o dist
 dist/UIPaste.exe
 ```
 
-It lives in the tray; tick **Start with Windows** in its menu to launch it at login. If another app already holds a hotkey (Snipaste takes `F1`/`F3`), you get a warning; quit that app, or use the tray menu instead.
+It lives in the tray; tick **开机自启** (start with Windows) in its menu to launch it at login. If another app already holds a hotkey (Snipaste takes `F1`/`F3`), you get a warning; quit that app, or use the tray menu instead.
 
 <br>
 
