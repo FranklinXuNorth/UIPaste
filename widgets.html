@@ -1,0 +1,277 @@
+<!doctype html>
+<!-- Widget sources (all open source, loaded from CDN):
+     Google: Material Web (@material/web, Apache-2.0), Material Symbols + Roboto (Google Fonts)
+     iOS look: Framework7 (MIT) + Framework7 Icons (MIT) — Apple publishes no open-source UI kit. -->
+<html class="ios">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7-icons@5/css/framework7-icons.css">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@2/all.js/+esm"></script>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #f6f6f8; }
+  header { display: flex; gap: 6px; padding: 8px 10px; background: #fff; border-bottom: 1px solid #ddd;
+           font: 13px Roboto, "Segoe UI", sans-serif; align-items: center; }
+  header button { border: 1px solid #ccc; background: #fff; border-radius: 6px; padding: 4px 10px; cursor: pointer; font: inherit; }
+  header button.on { background: #1d1b20; color: #fff; border-color: #1d1b20; }
+  header span { margin-left: auto; color: #888; font-size: 11px; }
+  #scroll { height: calc(100% - 45px); overflow: auto; }
+  section { display: none; padding: 6px 12px 40px; }
+  section.on { display: block; }
+  h3 { font: 600 11px Roboto, "Segoe UI", sans-serif; color: #888; text-transform: uppercase; margin: 14px 0 4px; letter-spacing: .5px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  /* The wrapper is the click target; its first child is what gets captured. */
+  .w { padding: 10px; border-radius: 8px; cursor: pointer; outline: 1px dashed transparent; }
+  .w:hover { outline-color: #8ab4f8; background: rgba(66,133,244,.06); }
+  .w > * { pointer-events: none; }
+  .capturing, .capturing body, .capturing #scroll { background: transparent !important; }
+  .capturing .w { outline: none !important; background: transparent !important; }
+  .w.editing { outline: 2px solid #1a73e8; }
+  #editor { display: none; position: fixed; left: 8px; right: 8px; bottom: 8px; max-height: 45%; overflow: auto; z-index: 9999;
+            background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.18);
+            padding: 10px 12px; font: 12px Roboto, "Segoe UI", sans-serif; }
+  #editor.on { display: block; }
+  #editor .hd { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-weight: 600; }
+  #editor .hd button { margin-left: 4px; border: 1px solid #ccc; background: #fff; border-radius: 6px; padding: 3px 10px; cursor: pointer; font: inherit; }
+  #editor .hd .grow { flex: 1; }
+  #editor label { display: grid; grid-template-columns: 70px 1fr; gap: 6px; align-items: center; margin: 4px 0; color: #666; }
+  #editor input { font: 13px Roboto, "Segoe UI", sans-serif; padding: 4px 6px; border: 1px solid #ccc; border-radius: 5px; }
+  .capturing #editor { display: none !important; }
+  body.edit #scroll { padding-bottom: 50vh; } /* room to scroll the widget above the edit bar */
+
+  /* Framework7 v8 normally injects its color vars from JS; CSS-only use has to set them. iOS system colors. */
+  :root { --f7-theme-color: #007aff; --f7-theme-color-rgb: 0, 122, 255; --f7-theme-color-shade: #0066d6;
+          --f7-theme-color-tint: #298fff; --f7-theme-color-text-color: #007aff; --f7-theme-color-bg-color: #007aff;
+          --f7-theme-color-border-color: #007aff; --f7-theme-color-ripple-color: rgba(0,122,255,.3); }
+  .color-red { --f7-theme-color: #ff3b30; --f7-theme-color-rgb: 255, 59, 48; --f7-theme-color-shade: #ff1407;
+               --f7-theme-color-tint: #ff6259; --f7-theme-color-text-color: #ff3b30; --f7-theme-color-bg-color: #ff3b30; }
+  .badge.color-red { background: #ff3b30; }
+  .ios { --f7-button-text-transform: none; --f7-button-large-text-transform: none; --f7-button-font-size: 17px; }
+  /* Framework7 overlays are position:fixed and hidden until animated in; pin them into the flow. */
+  .static { position: relative !important; left: auto !important; top: auto !important; bottom: auto !important;
+            transform: none !important; margin: 0 !important; opacity: 1 !important; visibility: visible !important; display: block !important; }
+  .ios-w { width: 340px; }
+  .m3-card { width: 260px; position: relative; border-radius: 12px; background: var(--md-sys-color-surface-container-low, #f7f2fa);
+             font-family: Roboto; padding: 16px; --md-elevation-level: 1; }
+  .m3-card .t { font-size: 16px; color: #1d1b20; margin: 0 0 4px; }
+  .m3-card .s { font-size: 14px; color: #49454f; margin: 0 0 16px; }
+  .m3-dialog { width: 300px; position: relative; border-radius: 28px; background: var(--md-sys-color-surface-container-high, #ece6f0);
+               font-family: Roboto; padding: 24px; --md-elevation-level: 3; }
+  .m3-dialog .t { font-size: 24px; color: #1d1b20; margin: 0 0 16px; }
+  .m3-dialog .s { font-size: 14px; color: #49454f; margin: 0 0 24px; line-height: 20px; }
+  .m3-dialog .a { display: flex; justify-content: flex-end; gap: 8px; }
+  .m3-snack { display: flex; align-items: center; gap: 12px; width: 320px; padding: 4px 8px 4px 16px; border-radius: 4px;
+              background: #322f35; color: #f5eff7; font: 14px Roboto; position: relative; --md-elevation-level: 3; min-height: 48px; box-sizing: border-box; }
+  .m3-snack md-text-button { margin-left: auto; --md-text-button-label-text-color: #d0bcff; }
+</style>
+</head>
+<body>
+<header>
+  <button data-s="m3" class="on">Material 3 · Google</button>
+  <button data-s="ios">iOS · Framework7</button>
+  <span>点击复制 · Shift+点击贴图 · 右键改文字</span>
+</header>
+<div id="scroll">
+
+<section id="m3" class="on">
+  <h3>Buttons</h3>
+  <div class="row">
+    <div class="w" data-name="M3 Filled"><md-filled-button>Filled</md-filled-button></div>
+    <div class="w" data-name="M3 Tonal"><md-filled-tonal-button>Tonal</md-filled-tonal-button></div>
+    <div class="w" data-name="M3 Outlined"><md-outlined-button>Outlined</md-outlined-button></div>
+    <div class="w" data-name="M3 Elevated"><md-elevated-button>Elevated</md-elevated-button></div>
+    <div class="w" data-name="M3 Text"><md-text-button>Text</md-text-button></div>
+    <div class="w" data-name="M3 Icon button"><md-filled-button><md-icon slot="icon">send</md-icon>Send</md-filled-button></div>
+    <div class="w" data-name="M3 FAB"><md-fab><md-icon slot="icon">edit</md-icon></md-fab></div>
+    <div class="w" data-name="M3 Extended FAB"><md-fab label="Compose"><md-icon slot="icon">edit</md-icon></md-fab></div>
+    <div class="w" data-name="M3 Icon"><md-icon-button><md-icon>favorite</md-icon></md-icon-button></div>
+    <div class="w" data-name="M3 Filled icon"><md-filled-icon-button><md-icon>settings</md-icon></md-filled-icon-button></div>
+  </div>
+  <h3>Inputs</h3>
+  <div class="row">
+    <div class="w" data-name="M3 Outlined field"><md-outlined-text-field label="Email" value="ada@example.com"></md-outlined-text-field></div>
+    <div class="w" data-name="M3 Filled field"><md-filled-text-field label="Password" type="password" value="secret12"></md-filled-text-field></div>
+    <div class="w" data-name="M3 Search field"><md-outlined-text-field placeholder="Search"><md-icon slot="leading-icon">search</md-icon></md-outlined-text-field></div>
+    <div class="w" data-name="M3 Select"><md-outlined-select label="Country"><md-select-option selected value="us"><div slot="headline">United States</div></md-select-option></md-outlined-select></div>
+    <div class="w" data-name="M3 Slider"><md-slider value="60" style="width:220px"></md-slider></div>
+  </div>
+  <h3>Selection</h3>
+  <div class="row">
+    <div class="w" data-name="M3 Switch on"><md-switch selected></md-switch></div>
+    <div class="w" data-name="M3 Switch off"><md-switch></md-switch></div>
+    <div class="w" data-name="M3 Checkbox"><md-checkbox checked></md-checkbox></div>
+    <div class="w" data-name="M3 Radio"><md-radio checked></md-radio></div>
+    <div class="w" data-name="M3 Filter chip"><md-filter-chip label="Filter" selected></md-filter-chip></div>
+    <div class="w" data-name="M3 Assist chip"><md-assist-chip label="Add to calendar"><md-icon slot="icon">event</md-icon></md-assist-chip></div>
+    <div class="w" data-name="M3 Input chip"><md-input-chip label="Ada Lovelace"></md-input-chip></div>
+  </div>
+  <h3>Navigation &amp; feedback</h3>
+  <div class="row">
+    <div class="w" data-name="M3 Tabs"><md-tabs style="width:320px"><md-primary-tab active>Video</md-primary-tab><md-primary-tab>Photos</md-primary-tab><md-primary-tab>Audio</md-primary-tab></md-tabs></div>
+    <div class="w" data-name="M3 Progress"><md-linear-progress value="0.6" style="width:220px"></md-linear-progress></div>
+    <div class="w" data-name="M3 Spinner"><md-circular-progress value="0.7"></md-circular-progress></div>
+    <div class="w" data-name="M3 List"><md-list style="width:300px">
+      <md-list-item><md-icon slot="start">inbox</md-icon><div slot="headline">Inbox</div><div slot="supporting-text">24 new</div></md-list-item>
+      <md-divider></md-divider>
+      <md-list-item><md-icon slot="start">send</md-icon><div slot="headline">Sent</div></md-list-item>
+    </md-list></div>
+  </div>
+  <h3>Surfaces</h3>
+  <div class="row">
+    <div class="w" data-name="M3 Card"><div class="m3-card"><md-elevation></md-elevation><p class="t">Card title</p><p class="s">Supporting text for this card.</p><md-filled-tonal-button>Action</md-filled-tonal-button></div></div>
+    <div class="w" data-name="M3 Dialog"><div class="m3-dialog"><md-elevation></md-elevation><p class="t">Discard draft?</p><p class="s">This will permanently delete the current draft.</p><div class="a"><md-text-button>Cancel</md-text-button><md-text-button>Discard</md-text-button></div></div></div>
+    <div class="w" data-name="M3 Snackbar"><div class="m3-snack"><md-elevation></md-elevation>Message archived<md-text-button>Undo</md-text-button></div></div>
+  </div>
+</section>
+
+<section id="ios">
+  <h3>Buttons</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Filled"><a class="button button-fill button-large button-round" style="width:160px">Continue</a></div>
+    <div class="w" data-name="iOS Tinted"><a class="button button-tonal button-large button-round" style="width:160px">Tinted</a></div>
+    <div class="w" data-name="iOS Outline"><a class="button button-outline button-round" style="width:120px">Outline</a></div>
+    <div class="w" data-name="iOS Plain"><a class="button" style="width:90px">Plain</a></div>
+    <div class="w" data-name="iOS Destructive"><a class="button button-fill button-large button-round color-red" style="width:160px">Delete</a></div>
+  </div>
+  <h3>Controls</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Toggle on"><label class="toggle"><input type="checkbox" checked><span class="toggle-icon"></span></label></div>
+    <div class="w" data-name="iOS Toggle off"><label class="toggle"><input type="checkbox"><span class="toggle-icon"></span></label></div>
+    <div class="w" data-name="iOS Segmented"><div class="segmented segmented-strong" style="width:260px"><a class="button button-active">Day</a><a class="button">Week</a><a class="button">Month</a><span class="segmented-highlight"></span></div></div>
+    <div class="w" data-name="iOS Stepper"><div class="stepper stepper-fill stepper-round"><div class="stepper-button-minus"></div><div class="stepper-input-wrap"><input type="text" value="1" readonly></div><div class="stepper-button-plus"></div></div></div>
+    <div class="w" data-name="iOS Badge"><span class="badge color-red">3</span></div>
+    <div class="w" data-name="iOS Search"><form class="searchbar searchbar-inline ios-w"><div class="searchbar-inner"><div class="searchbar-input-wrap"><input type="search" placeholder="Search"><i class="searchbar-icon"></i></div></div></form></div>
+  </div>
+  <h3>Lists</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Settings list"><div class="list list-strong inset list-dividers ios-w" style="margin:0">
+      <ul>
+        <li><div class="item-content"><div class="item-media"><i class="icon f7-icons" style="color:#007aff">wifi</i></div><div class="item-inner"><div class="item-title">Wi-Fi</div><div class="item-after">Home</div></div></div></li>
+        <li><div class="item-content"><div class="item-media"><i class="icon f7-icons" style="color:#007aff">bluetooth</i></div><div class="item-inner"><div class="item-title">Bluetooth</div><div class="item-after">On</div></div></div></li>
+        <li><a class="item-link item-content"><div class="item-media"><i class="icon f7-icons" style="color:#ff9500">bell_fill</i></div><div class="item-inner"><div class="item-title">Notifications</div></div></a></li>
+      </ul>
+    </div></div>
+  </div>
+  <h3>Bars</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Nav bar"><div class="navbar static" style="width:375px;height:44px"><div class="navbar-bg"></div><div class="navbar-inner"><div class="left"><a class="link back"><i class="icon icon-back"></i><span>Back</span></a></div><div class="title">Settings</div><div class="right"><a class="link">Edit</a></div></div></div></div>
+    <div class="w" data-name="iOS Tab bar"><div class="toolbar tabbar tabbar-icons toolbar-bottom static" style="width:375px"><div class="toolbar-inner">
+      <a class="tab-link tab-link-active"><i class="icon f7-icons">house_fill</i><span class="tabbar-label">Home</span></a>
+      <a class="tab-link"><i class="icon f7-icons">search</i><span class="tabbar-label">Search</span></a>
+      <a class="tab-link"><i class="icon f7-icons">tray_fill</i><span class="tabbar-label">Inbox</span></a>
+      <a class="tab-link"><i class="icon f7-icons">person_crop_circle</i><span class="tabbar-label">Profile</span></a>
+    </div></div></div>
+  </div>
+  <h3>Overlays</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Alert"><div class="dialog dialog-buttons-2 modal-in static"><div class="dialog-inner"><div class="dialog-title">Delete photo?</div><div class="dialog-text">This photo will be removed from all your devices.</div></div><div class="dialog-buttons"><span class="dialog-button">Cancel</span><span class="dialog-button dialog-button-strong color-red">Delete</span></div></div></div>
+    <div class="w" data-name="iOS Toast"><div class="toast toast-center modal-in static" style="width:auto"><div class="toast-content"><div class="toast-text">Copied to clipboard</div></div></div></div>
+  </div>
+</section>
+</div>
+<div id="editor"></div>
+<script>
+  const show = id => {
+    document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === id));
+    document.querySelectorAll('header button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  };
+  document.querySelectorAll('header button').forEach(b => b.onclick = () => show(b.dataset.s));
+  const rect = w => {
+    const r = w.firstElementChild.getBoundingClientRect();
+    return { name: w.dataset.name, x: r.left, y: r.top, w: r.width, h: r.height };
+  };
+  // Capture phase so the component never sees the click (no ripple, no toggling).
+  document.addEventListener('click', e => {
+    const w = e.target.closest('.w');
+    if (!w) return;
+    e.preventDefault(); e.stopPropagation();
+    chrome.webview.postMessage({ ...rect(w), pin: e.shiftKey });
+  }, true);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (editing) closeEditor(); else chrome.webview.postMessage({ close: true });
+  });
+
+  // ---- Right-click a widget to edit its preset text. Edits are kept per widget in localStorage.
+  const ATTRS = { label: '标签', value: '值', placeholder: '占位文字', 'supporting-text': '辅助文字' };
+  const originals = {};
+  const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+                  set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+                  del: k => { try { localStorage.removeItem(k); } catch {} } };
+  document.querySelectorAll('.w').forEach(w => {
+    originals[w.dataset.name] = w.innerHTML;
+    const saved = store.get('w:' + w.dataset.name);
+    if (saved != null) w.innerHTML = saved;
+  });
+
+  // Every editable piece of a widget: visible text nodes (icon ligatures count: editing them swaps the icon)
+  // plus text-ish attributes such as a field's label / value / placeholder.
+  function fields(w) {
+    const out = [];
+    const walk = document.createTreeWalker(w, NodeFilter.SHOW_TEXT,
+      { acceptNode: n => n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+    while (walk.nextNode()) {
+      const n = walk.currentNode, icon = n.parentElement.closest('md-icon, i.icon');
+      out.push({ name: icon ? '图标' : '文字', get: () => n.nodeValue.trim(), set: v => n.nodeValue = v });
+    }
+    w.querySelectorAll('*').forEach(el => Object.keys(ATTRS).forEach(a => {
+      if (el.hasAttribute(a) && el.tagName !== 'MD-SELECT-OPTION')
+        out.push({ name: ATTRS[a], get: () => el.getAttribute(a), set: v => el.setAttribute(a, v) });
+    }));
+    return out;
+  }
+
+  const editor = document.getElementById('editor');
+  let editing = null;
+  function closeEditor() {
+    if (!editing) return;
+    store.set('w:' + editing.dataset.name, editing.innerHTML);
+    editing.classList.remove('editing');
+    editing = null;
+    editor.classList.remove('on');
+    document.body.classList.remove('edit');
+  }
+  function openEditor(w) {
+    closeEditor();
+    editing = w;
+    w.classList.add('editing');
+    const fs = fields(w);
+    editor.innerHTML = `<div class="hd"><span class="grow"></span><button data-a="reset">重置</button><button data-a="done">完成</button></div>`;
+    editor.querySelector('.grow').textContent = w.dataset.name;
+    if (!fs.length) editor.insertAdjacentHTML('beforeend', '<div style="color:#999">这个控件没有可改的文字</div>');
+    fs.forEach(f => {
+      const row = document.createElement('label'), input = document.createElement('input');
+      row.append(f.name, input);
+      input.value = f.get();
+      input.oninput = () => f.set(input.value);
+      editor.append(row);
+    });
+    editor.querySelector('[data-a=done]').onclick = closeEditor;
+    editor.querySelector('[data-a=reset]').onclick = () => {
+      w.innerHTML = originals[w.dataset.name];
+      store.del('w:' + w.dataset.name);
+      openEditor(w);
+    };
+    editor.classList.add('on');
+    document.body.classList.add('edit');
+    w.scrollIntoView({ block: 'center' });
+    editor.querySelector('input')?.focus();
+  }
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const w = e.target.closest('.w');
+    if (w) openEditor(w);
+  });
+  // Used by --dump: bring widget i on screen and report its rect.
+  window.rectOf = i => {
+    const w = document.querySelectorAll('.w')[i];
+    show(w.closest('section').id);
+    w.scrollIntoView({ block: 'center' });
+    return rect(w);
+  };
+  window.isReady = () => !!customElements.get('md-switch') && document.fonts.status === 'loaded';
+</script>
+</body>
+</html>
