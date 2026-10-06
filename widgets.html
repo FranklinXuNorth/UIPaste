@@ -1,13 +1,14 @@
 <!doctype html>
 <!-- Widget sources (all open source, loaded from CDN):
      Google: Material Web (@material/web, Apache-2.0), Material Symbols + Roboto (Google Fonts)
-     iOS look: Framework7 (MIT) + Framework7 Icons (MIT) — Apple publishes no open-source UI kit. -->
+     iOS-style: Framework7 v9 (MIT, iOS 26 look) + Framework7 Icons (MIT). Not Apple assets: Apple publishes no open-source UI kit.
+     Generic / Annotate: UIPaste's own CSS. -->
 <html class="ios">
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=block">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=block">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7@8/framework7-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7@9/framework7-bundle.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/framework7-icons@5/css/framework7-icons.css">
 <script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@2/all.js/+esm"></script>
 <style>
@@ -16,7 +17,8 @@
            font: 13px Roboto, "Segoe UI", sans-serif; align-items: center; }
   header button { border: 1px solid #ccc; background: #fff; border-radius: 6px; padding: 4px 10px; cursor: pointer; font: inherit; }
   header button.on { background: #1d1b20; color: #fff; border-color: #1d1b20; }
-  header span { margin-left: auto; color: #888; font-size: 11px; }
+  header input { margin-left: auto; width: 170px; border: 1px solid #ccc; border-radius: 6px; padding: 4px 8px; font: inherit; }
+  .hidden { display: none !important; }
   #scroll { height: calc(100% - 45px); overflow: auto; }
   section { display: none; padding: 6px 12px 40px; }
   section.on { display: block; }
@@ -41,7 +43,7 @@
   .capturing #editor { display: none !important; }
   body.edit #scroll { padding-bottom: 50vh; } /* room to scroll the widget above the edit bar */
 
-  /* Framework7 v8 normally injects its color vars from JS; CSS-only use has to set them. iOS system colors. */
+  /* Framework7 normally injects its color vars from JS; CSS-only use has to set them. iOS system colors. */
   :root { --f7-theme-color: #007aff; --f7-theme-color-rgb: 0, 122, 255; --f7-theme-color-shade: #0066d6;
           --f7-theme-color-tint: #298fff; --f7-theme-color-text-color: #007aff; --f7-theme-color-bg-color: #007aff;
           --f7-theme-color-border-color: #007aff; --f7-theme-color-ripple-color: rgba(0,122,255,.3); }
@@ -65,13 +67,75 @@
   .m3-snack { display: flex; align-items: center; gap: 12px; width: 320px; padding: 4px 8px 4px 16px; border-radius: 4px;
               background: #322f35; color: #f5eff7; font: 14px Roboto; position: relative; --md-elevation-level: 3; min-height: 48px; box-sizing: border-box; }
   .m3-snack md-text-button { margin-left: auto; --md-text-button-label-text-color: #d0bcff; }
+  /* Material Web has no app bar / nav bar / segmented / menu surface yet: hand-built from M3 baseline tokens. */
+  .m3-topbar { width: 360px; height: 64px; display: flex; align-items: center; gap: 4px; padding: 0 4px; box-sizing: border-box;
+               background: #fef7ff; font: 22px Roboto; color: #1d1b20; }
+  .m3-topbar .t { flex: 1; padding-left: 4px; }
+  .m3-search { width: 340px; height: 56px; display: flex; align-items: center; gap: 16px; padding: 0 12px 0 16px; box-sizing: border-box;
+               border-radius: 28px; background: #ece6f0; color: #49454f; font: 16px Roboto; }
+  .m3-search .p { flex: 1; }
+  .m3-search .av { width: 30px; height: 30px; border-radius: 50%; background: #6750a4; color: #fff; display: grid; place-items: center; font-size: 14px; }
+  .m3-navbar { width: 375px; height: 80px; display: flex; background: #f3edf7; font: 500 12px Roboto; color: #49454f; }
+  .m3-navbar .i { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .m3-navbar .pill { width: 64px; height: 32px; border-radius: 16px; display: grid; place-items: center; }
+  .m3-navbar .on { color: #1d1b20; }
+  .m3-navbar .on .pill { background: #e8def8; }
+  .m3-seg { display: flex; height: 40px; border: 1px solid #79747e; border-radius: 20px; overflow: hidden; font: 500 14px Roboto; color: #1d1b20; }
+  .m3-seg span { display: flex; align-items: center; gap: 6px; padding: 0 18px; border-left: 1px solid #79747e; }
+  .m3-seg span:first-child { border-left: 0; }
+  .m3-seg .on { background: #e8def8; }
+  .m3-seg md-icon { --md-icon-size: 18px; }
+  .m3-badge { position: relative; width: 24px; height: 24px; color: #49454f; margin: 6px; }
+  .m3-badge b { position: absolute; top: -4px; right: -8px; min-width: 16px; height: 16px; border-radius: 8px; background: #b3261e;
+                color: #fff; font: 500 11px/16px Roboto; text-align: center; padding: 0 4px; box-sizing: border-box; }
+  .m3-menu { position: relative; width: 200px; padding: 8px 0; border-radius: 4px; background: #f3edf7; font: 14px Roboto; color: #1d1b20; --md-elevation-level: 2; }
+  .m3-menu div { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 12px; }
+  .m3-menu md-icon { color: #49454f; }
+
+  .ios-large-title { width: 375px; padding: 4px 16px 8px; box-sizing: border-box; font: 700 34px -apple-system, "Segoe UI", sans-serif; letter-spacing: .4px; color: #000; }
+  .ios-grabber { width: 36px; height: 5px; border-radius: 3px; background: #c7c7cc; margin: 8px auto 4px; }
+
+  /* Generic */
+  .g-phone { width: 280px; height: 580px; border: 11px solid #111; border-radius: 48px; box-sizing: border-box; position: relative; }
+  .g-phone .island { position: absolute; top: 9px; left: 50%; width: 88px; height: 26px; margin-left: -44px; border-radius: 13px; background: #111; }
+  .g-status { width: 375px; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px 0 32px; box-sizing: border-box;
+              font: 600 16px -apple-system, "Segoe UI", sans-serif; color: #000; }
+  .g-status span { display: flex; gap: 6px; }
+  .g-status i { font-size: 17px; }
+  .g-home { width: 134px; height: 5px; border-radius: 3px; background: #000; }
+  .g-img { width: 240px; height: 150px; border-radius: 10px; background: #e5e5ea; color: #aeaeb2; display: grid; place-items: center; }
+  .g-img i { font-size: 44px; }
+  .g-avatar { width: 48px; height: 48px; border-radius: 50%; background: #5856d6; color: #fff; display: grid; place-items: center; font: 600 18px "Segoe UI", sans-serif; }
+  .g-avatars { display: flex; }
+  .g-avatars span { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff; margin-left: -10px; color: #fff;
+                    display: grid; place-items: center; font: 600 13px "Segoe UI", sans-serif; }
+  .g-avatars span:first-child { margin-left: 0; }
+  .g-skel { width: 240px; display: grid; gap: 10px; }
+  .g-skel span { height: 12px; border-radius: 6px; background: #e5e5ea; }
+  .g-tip { position: relative; padding: 6px 10px; border-radius: 6px; background: #1f1f1f; color: #fff; font: 13px "Segoe UI", sans-serif; margin-bottom: 6px; }
+  .g-tip::after { content: ""; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #1f1f1f; }
+  .g-tap { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.18); border: 2px solid rgba(255,255,255,.9); box-shadow: 0 0 0 1px rgba(0,0,0,.2); }
+
+  /* Annotate */
+  .a-tag { display: inline-block; padding: 5px 12px; border-radius: 999px; color: #fff; font: 600 14px "Segoe UI", sans-serif;
+           box-shadow: 0 1px 3px rgba(0,0,0,.25); white-space: nowrap; }
+  .a-num { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #d93025; color: #fff;
+           font: 700 15px "Segoe UI", sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,.3); border: 2px solid #fff; }
+  .a-box { width: 200px; height: 110px; border: 3px dashed #d93025; border-radius: 8px; background: rgba(217,48,37,.06); }
+  .a-note { width: 180px; padding: 12px; background: #fff3a8; color: #3c3a1e; font: 14px/1.4 "Segoe UI", sans-serif; box-shadow: 0 3px 8px rgba(0,0,0,.2); transform: rotate(-1.5deg); }
+  .a-callout { position: relative; max-width: 240px; padding: 8px 12px; border-radius: 8px; background: #1a73e8; color: #fff; font: 14px "Segoe UI", sans-serif;
+               box-shadow: 0 2px 6px rgba(0,0,0,.25); margin-left: 10px; }
+  .a-callout::before { content: ""; position: absolute; left: -8px; top: 50%; margin-top: -8px; border: 8px solid transparent; border-left: 0; border-right-color: #1a73e8; }
+
 </style>
 </head>
 <body>
 <header>
-  <button data-s="m3" class="on">Material 3 · Google</button>
-  <button data-s="ios">iOS · Framework7</button>
-  <span>点击复制 · Shift+点击贴图 · 右键改文字</span>
+  <button data-s="m3" class="on" title="Google Material Web">Material 3</button>
+  <button data-s="ios" title="Framework7 v9 (iOS 26 look)">iOS-style</button>
+  <button data-s="gen">Generic</button>
+  <button data-s="ann" title="Tags and markers for telling AI / teammates what to change">Annotate</button>
+  <input id="q" type="search" placeholder="搜索 · 点击复制 · 右键改字" title="Click: copy / drop into capture · Shift+click: pin · Right-click: edit text">
 </header>
 <div id="scroll">
 
@@ -124,6 +188,20 @@
     <div class="w" data-name="M3 Dialog"><div class="m3-dialog"><md-elevation></md-elevation><p class="t">Discard draft?</p><p class="s">This will permanently delete the current draft.</p><div class="a"><md-text-button>Cancel</md-text-button><md-text-button>Discard</md-text-button></div></div></div>
     <div class="w" data-name="M3 Snackbar"><div class="m3-snack"><md-elevation></md-elevation>Message archived<md-text-button>Undo</md-text-button></div></div>
   </div>
+  <h3>App bars &amp; navigation</h3>
+  <div class="row">
+    <div class="w" data-name="M3 Top app bar"><div class="m3-topbar"><md-icon-button><md-icon>arrow_back</md-icon></md-icon-button><span class="t">Title</span><md-icon-button><md-icon>search</md-icon></md-icon-button><md-icon-button><md-icon>more_vert</md-icon></md-icon-button></div></div>
+    <div class="w" data-name="M3 Search bar"><div class="m3-search"><md-icon>menu</md-icon><span class="p">Search mail</span><span class="av">A</span></div></div>
+    <div class="w" data-name="M3 Navigation bar"><div class="m3-navbar">
+      <div class="i on"><span class="pill"><md-icon>home</md-icon></span><span>Home</span></div>
+      <div class="i"><span class="pill"><md-icon>explore</md-icon></span><span>Explore</span></div>
+      <div class="i"><span class="pill"><md-icon>bookmark</md-icon></span><span>Saved</span></div>
+      <div class="i"><span class="pill"><md-icon>person</md-icon></span><span>Profile</span></div>
+    </div></div>
+    <div class="w" data-name="M3 Segmented"><div class="m3-seg"><span class="on"><md-icon>check</md-icon>Day</span><span>Week</span><span>Month</span></div></div>
+    <div class="w" data-name="M3 Badge"><div class="m3-badge"><md-icon>notifications</md-icon><b>3</b></div></div>
+    <div class="w" data-name="M3 Menu"><div class="m3-menu"><md-elevation></md-elevation><div><md-icon>content_copy</md-icon>Copy</div><div><md-icon>edit</md-icon>Rename</div><div><md-icon>delete</md-icon>Delete</div></div></div>
+  </div>
 </section>
 
 <section id="ios">
@@ -169,7 +247,101 @@
     <div class="w" data-name="iOS Alert"><div class="dialog dialog-buttons-2 modal-in static"><div class="dialog-inner"><div class="dialog-title">Delete photo?</div><div class="dialog-text">This photo will be removed from all your devices.</div></div><div class="dialog-buttons"><span class="dialog-button">Cancel</span><span class="dialog-button dialog-button-strong color-red">Delete</span></div></div></div>
     <div class="w" data-name="iOS Toast"><div class="toast toast-center modal-in static" style="width:auto"><div class="toast-content"><div class="toast-text">Copied to clipboard</div></div></div></div>
   </div>
+  <h3>More controls</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Small"><a class="button button-fill button-small button-round" style="width:90px">Follow</a></div>
+    <div class="w" data-name="iOS Slider"><div class="range-slider range-slider-horizontal" style="width:220px"><span class="range-bar"><span class="range-bar-active" style="left:0;width:60%"></span></span><span class="range-knob-wrap" style="left:60%"><span class="range-knob"></span></span></div></div>
+    <div class="w" data-name="iOS Progress"><span class="progressbar" style="width:220px;display:block"><span style="transform:translate3d(-40%,0,0)"></span></span></div>
+    <div class="w" data-name="iOS Spinner"><span class="preloader"><span class="preloader-inner"><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span><span class="preloader-inner-line"></span></span></span></div>
+    <div class="w" data-name="iOS Chip"><div class="chip"><div class="chip-label">Design</div></div></div>
+    <div class="w" data-name="iOS Chip outline"><div class="chip chip-outline"><div class="chip-label">Outline</div></div></div>
+  </div>
+  <h3>Forms</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Form"><div class="list inline-labels list-strong inset list-dividers ios-w" style="margin:0"><ul>
+      <li class="item-content item-input"><div class="item-inner"><div class="item-title item-label">Name</div><div class="item-input-wrap"><input type="text" placeholder="Required"></div></div></li>
+      <li class="item-content item-input"><div class="item-inner"><div class="item-title item-label">Email</div><div class="item-input-wrap"><input type="email" value="ada@example.com"></div></div></li>
+    </ul></div></div>
+    <div class="w" data-name="iOS Checklist"><div class="list list-strong inset list-dividers ios-w" style="margin:0"><ul>
+      <li><label class="item-checkbox item-content"><input type="checkbox" checked><i class="icon icon-checkbox"></i><div class="item-inner"><div class="item-title">Books</div></div></label></li>
+      <li><label class="item-checkbox item-content"><input type="checkbox"><i class="icon icon-checkbox"></i><div class="item-inner"><div class="item-title">Movies</div></div></label></li>
+    </ul></div></div>
+    <div class="w" data-name="iOS Radio list"><div class="list list-strong inset list-dividers ios-w" style="margin:0"><ul>
+      <li><label class="item-radio item-radio-icon-end item-content"><input type="radio" name="ios-r" checked><i class="icon icon-radio"></i><div class="item-inner"><div class="item-title">Standard</div></div></label></li>
+      <li><label class="item-radio item-radio-icon-end item-content"><input type="radio" name="ios-r"><i class="icon icon-radio"></i><div class="item-inner"><div class="item-title">Express</div></div></label></li>
+    </ul></div></div>
+  </div>
+  <h3>Content</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Mail list"><div class="list media-list list-strong inset list-dividers ios-w" style="margin:0"><ul>
+      <li><a class="item-link item-content"><div class="item-inner"><div class="item-title-row"><div class="item-title">Ada Lovelace</div><div class="item-after">9:41</div></div><div class="item-subtitle">Lunch on Friday?</div><div class="item-text">Let me know if noon works for you and I'll book a table.</div></div></a></li>
+      <li><a class="item-link item-content"><div class="item-inner"><div class="item-title-row"><div class="item-title">Alan Turing</div><div class="item-after">Yesterday</div></div><div class="item-subtitle">Draft review</div><div class="item-text">Left a few comments on section two.</div></div></a></li>
+    </ul></div></div>
+    <div class="w" data-name="iOS Card"><div class="card" style="width:320px;margin:0"><div class="card-header">Weekend trip</div><div class="card-content card-content-padding">Two nights in Big Sur. Bring a jacket, it gets cold by the coast.</div><div class="card-footer"><a class="link">Like</a><a class="link">Read more</a></div></div></div>
+    <div class="w" data-name="iOS Messages"><div class="messages ios-w" style="background:transparent;padding:0">
+      <div class="message message-received message-first message-last message-tail"><div class="message-content"><div class="message-bubble"><div class="message-text">Are we still on for lunch?</div></div></div></div>
+      <div class="message message-sent message-first message-last message-tail"><div class="message-content"><div class="message-bubble"><div class="message-text">Yes! See you at noon</div></div></div></div>
+    </div></div>
+    <div class="w" data-name="iOS Large title"><div class="ios-large-title">Settings</div></div>
+    <div class="w" data-name="iOS Toolbar"><div class="toolbar toolbar-bottom static" style="width:375px"><div class="toolbar-inner"><a class="link">Edit</a><a class="link"><i class="icon f7-icons">square_arrow_up</i></a><a class="link">Done</a></div></div></div>
+  </div>
+  <h3>More overlays</h3>
+  <div class="row">
+    <div class="w" data-name="iOS Action sheet"><div class="actions-modal modal-in static" style="width:340px"><div class="actions-group"><div class="actions-label">Choose an action</div><div class="actions-button">Share</div><div class="actions-button">Duplicate</div><div class="actions-button color-red">Delete</div></div><div class="actions-group"><div class="actions-button actions-button-strong">Cancel</div></div></div></div>
+    <div class="w" data-name="iOS Notification"><div class="notification modal-in static" style="width:340px"><div class="notification-header"><div class="notification-icon"><i class="icon f7-icons" style="font-size:18px;color:#34c759">chat_bubble_fill</i></div><div class="notification-title">Messages</div><div class="notification-title-right-text">now</div></div><div class="notification-content"><div class="notification-subtitle">Ada Lovelace</div><div class="notification-text">Are we still on for lunch?</div></div></div></div>
+    <div class="w" data-name="iOS Sheet"><div class="sheet-modal modal-in static" style="width:375px;height:auto"><div class="sheet-modal-inner"><div class="ios-grabber"></div><div class="block"><p style="font-weight:600;font-size:17px;margin:0 0 6px">Share with</p><p style="margin:0;color:#8e8e93">AirDrop, Messages, Mail…</p></div></div></div></div>
+    <div class="w" data-name="iOS Popover menu"><div class="popover modal-in static" style="width:220px"><div class="popover-inner"><div class="list" style="margin:0"><ul>
+      <li><a class="list-button item-link">Copy</a></li><li><a class="list-button item-link">Rename</a></li><li><a class="list-button item-link color-red">Delete</a></li>
+    </ul></div></div></div></div>
+  </div>
 </section>
+
+<section id="gen">
+  <h3>Device</h3>
+  <div class="row">
+    <div class="w" data-name="Phone frame"><div class="g-phone"><div class="island"></div></div></div>
+    <div class="w" data-name="Status bar"><div class="g-status"><b>9:41</b><span><i class="icon f7-icons">chart_bar_alt_fill</i><i class="icon f7-icons">wifi</i><i class="icon f7-icons">battery_100</i></span></div></div>
+    <div class="w" data-name="Home indicator"><div class="g-home"></div></div>
+  </div>
+  <h3>Placeholders</h3>
+  <div class="row">
+    <div class="w" data-name="Image placeholder"><div class="g-img"><i class="icon f7-icons">photo</i></div></div>
+    <div class="w" data-name="Avatar"><div class="g-avatar">AL</div></div>
+    <div class="w" data-name="Avatar group"><div class="g-avatars"><span style="background:#ff9f0a">A</span><span style="background:#30b0c7">B</span><span style="background:#af52de">C</span><span style="background:#8e8e93">+4</span></div></div>
+    <div class="w" data-name="Skeleton"><div class="g-skel"><span style="width:100%"></span><span style="width:85%"></span><span style="width:60%"></span></div></div>
+    <div class="w" data-name="Tooltip"><div class="g-tip">Copied!</div></div>
+  </div>
+  <h3>Pointers</h3>
+  <div class="row">
+    <div class="w" data-name="Cursor"><svg width="22" height="30" viewBox="0 0 22 30"><path d="M2 2v22l6-6 4 10 4-2-4-9h8z" fill="#000" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+    <div class="w" data-name="Tap"><div class="g-tap"></div></div>
+  </div>
+</section>
+
+<section id="ann">
+  <h3>Intent tags (for AI or teammates)</h3>
+  <div class="row">
+    <div class="w" data-name="Tag Add"><span class="a-tag" style="background:#1e9e5a">+ Add</span></div>
+    <div class="w" data-name="Tag Remove"><span class="a-tag" style="background:#d93025">− Remove</span></div>
+    <div class="w" data-name="Tag Replace"><span class="a-tag" style="background:#e37400">↻ Replace</span></div>
+    <div class="w" data-name="Tag Move"><span class="a-tag" style="background:#5f6368">⇄ Move</span></div>
+    <div class="w" data-name="Tag Click"><span class="a-tag" style="background:#1a73e8">Click → opens Settings</span></div>
+    <div class="w" data-name="Tag State"><span class="a-tag" style="background:#8430ce">State: Hover</span></div>
+    <div class="w" data-name="Tag Bug"><span class="a-tag" style="background:#b3261e">Bug</span></div>
+    <div class="w" data-name="Tag Question"><span class="a-tag" style="background:#3c4043">? Why</span></div>
+  </div>
+  <h3>Markers</h3>
+  <div class="row">
+    <div class="w" data-name="Marker 1"><span class="a-num">1</span></div>
+    <div class="w" data-name="Marker 2"><span class="a-num">2</span></div>
+    <div class="w" data-name="Marker 3"><span class="a-num">3</span></div>
+    <div class="w" data-name="Highlight box"><div class="a-box"></div></div>
+    <div class="w" data-name="Arrow"><svg width="160" height="24" viewBox="0 0 160 24"><path d="M4 12h140" stroke="#d93025" stroke-width="4" stroke-linecap="round"/><path d="M138 3l16 9-16 9z" fill="#d93025"/></svg></div>
+    <div class="w" data-name="Sticky note"><div class="a-note">Make this bigger and move it above the fold.</div></div>
+    <div class="w" data-name="Callout"><div class="a-callout">This should match the header color</div></div>
+  </div>
+</section>
+
 </div>
 <div id="editor"></div>
 <script>
@@ -177,7 +349,23 @@
     document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === id));
     document.querySelectorAll('header button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
   };
-  document.querySelectorAll('header button').forEach(b => b.onclick = () => show(b.dataset.s));
+  let tab = 'm3';
+  document.querySelectorAll('header button').forEach(b => b.onclick = () => { q.value = ''; show(tab = b.dataset.s); filter(); });
+
+  // Search across every section by widget name; an empty query goes back to the current tab.
+  const q = document.getElementById('q');
+  function filter() {
+    const term = q.value.trim().toLowerCase();
+    document.querySelectorAll('.w').forEach(w => w.classList.toggle('hidden', !!term && !w.dataset.name.toLowerCase().includes(term)));
+    document.querySelectorAll('.row').forEach(r => {
+      const empty = !r.querySelector('.w:not(.hidden)');
+      r.classList.toggle('hidden', empty);
+      r.previousElementSibling?.classList.toggle('hidden', empty);
+    });
+    document.querySelectorAll('section').forEach(sec =>
+      sec.classList.toggle('on', term ? !!sec.querySelector('.w:not(.hidden)') : sec.id === tab));
+  }
+  q.oninput = filter;
   const rect = w => {
     const r = w.firstElementChild.getBoundingClientRect();
     return { name: w.dataset.name, x: r.left, y: r.top, w: r.width, h: r.height };
@@ -267,6 +455,7 @@
   // Used by --dump: bring widget i on screen and report its rect.
   window.rectOf = i => {
     const w = document.querySelectorAll('.w')[i];
+    q.value = ''; filter();
     show(w.closest('section').id);
     w.scrollIntoView({ block: 'center' });
     return rect(w);

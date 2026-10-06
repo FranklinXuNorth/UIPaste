@@ -17,7 +17,7 @@
 
 **A tray app that turns any screenshot into a quick UI mockup.** Press `F1` to grab part of the screen, press `F2` to open a palette of real components, and click one to drop it in as a sticker. Move it, scale it, edit its text, then press `Enter` to copy.
 
-The widgets aren't drawings. They're the real open-source components (Google's Material Web, and Framework7's iOS theme), rendered in WebView2 and captured as transparent PNGs at 3× resolution, so text stays sharp at any size.
+~90 widgets in four groups: **Material 3**, **iOS-style** (iOS 26 look), **Generic** (phone frame, status bar, placeholders), and **Annotate** (Add / Remove / Click → tags, markers, sticky notes for telling an AI or a teammate what to change). The UI widgets aren't drawings. They're real open-source components rendered in WebView2 and captured as transparent PNGs at 3× resolution, so text stays sharp at any size.
 
 <p align="center"><img src="docs/widgets.png" alt="Some of the palette: Material 3 buttons, fields, dialog, snackbar, tabs; iOS buttons, segmented control, toggle, settings list, alert, tab bar" width="760"></p>
 
@@ -65,7 +65,7 @@ It lives in the tray. If another app already holds a hotkey (Snipaste takes `F1`
 | Paste in an image | `Ctrl+V` |
 | Finish | `Enter` copies · `Ctrl+S` saves *and* copies · `Ctrl+T` pins · `Esc` quits |
 
-**In the palette**, right-click a widget to edit its text (labels, values, placeholders, even icon names). Edits are remembered; **Reset** restores the default.
+**In the palette**, type to search all groups. Right-click a widget to edit its text (labels, values, placeholders, even icon names). Edits are remembered; **Reset** restores the default.
 
 **On a pin**, the wheel zooms, `Ctrl`+wheel changes opacity, and a double-click closes it.
 
@@ -75,8 +75,11 @@ It lives in the tray. If another app already holds a hotkey (Snipaste takes `F1`
 
 The palette loads these at runtime from jsDelivr / Google Fonts. Nothing is bundled.
 
-- **Material 3:** [Material Web](https://github.com/material-components/material-web) (Apache-2.0), Material Symbols, Roboto
-- **iOS look:** [Framework7](https://github.com/framework7io/framework7) + Framework7 Icons (MIT). Apple doesn't publish an open-source UI kit.
+| Group | Source |
+| --- | --- |
+| Material 3 | [Material Web](https://github.com/material-components/material-web) (Apache-2.0), Material Symbols, Roboto. App bar, nav bar, segmented and menu are hand-built from M3 tokens, since Material Web doesn't ship them yet. |
+| iOS-style | [Framework7 v9](https://github.com/framework7io/framework7) + Framework7 Icons (MIT). These are look-alikes, not Apple assets: Apple doesn't publish an open-source UI kit. |
+| Generic, Annotate | UIPaste's own CSS (MIT) |
 
 Add your own components by editing `widgets.html`: anything wrapped in `<div class="w" data-name="…">` shows up in the palette.
 
